@@ -551,10 +551,18 @@ const distinct = (arr) => [...new Set(arr)];
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
-}
+function group(array, keySelector, valueSelector) {
+  const map = new Map();
+  const countries = [...new Set(array.map(keySelector))];
 
+  countries.map((country) => {
+    const cities = array.filter((item) => keySelector(item) === country).map(valueSelector);
+
+    map.set(country, cities);
+    return [country, cities];
+  });
+  return map;
+}
 
 /**
  * Projects each element of the specified array to a sequence
@@ -569,10 +577,9 @@ function group(/* array, keySelector, valueSelector */) {
  *   [[1, 2], [3, 4], [5, 6]], (x) => x     =>   [ 1, 2, 3, 4, 5, 6 ]
  *   ['one','two','three'], x=>x.split('')  =>   ['o','n','e','t','w','o','t','h','r','e','e']
  */
-function selectMany(/* arr, childrenSelector */) {
-  throw new Error('Not implemented');
+function selectMany(arr, childrenSelector) {
+  return arr.map(childrenSelector).flat();
 }
-
 
 /**
  * Returns an element from the multidimentional array by the specified indexes.
@@ -586,10 +593,17 @@ function selectMany(/* arr, childrenSelector */) {
  *   ['one','two','three'], [2]       => 'three'  (arr[2])
  *   [[[ 1, 2, 3]]], [ 0, 0, 1 ]      => 2        (arr[0][0][1])
  */
-function getElementByIndexes(/* arr, indexes */) {
-  throw new Error('Not implemented');
-}
+function getElementByIndexes(arr, indexes) {
+  const func = (innerArr, innerIndexes) => {
+    if (Array.isArray(innerArr)) {
+      return func(innerArr[innerIndexes[0]], innerIndexes.slice(1));
+    }
 
+    return innerArr;
+  };
+
+  return func(arr, indexes);
+}
 
 /**
  * Swaps the head and tail of the specified array:
@@ -609,10 +623,17 @@ function getElementByIndexes(/* arr, indexes */) {
  *   [ 1, 2, 3, 4, 5, 6, 7, 8 ]   =>  [ 5, 6, 7, 8, 1, 2, 3, 4 ]
  *
  */
-function swapHeadAndTail(/* arr */) {
-  throw new Error('Not implemented');
-}
+function swapHeadAndTail(arr) {
+  if (arr.length === 1) {
+    return arr;
+  }
 
+  const middle = Math.floor(arr.length / 2);
+  const left = arr.slice(0, middle);
+  const right = arr.length % 2 === 0 ? arr.slice(middle) : arr.slice(middle + 1);
+
+  return arr.length % 2 === 0 ? [...right, ...left] : [...right, arr[middle], ...left];
+}
 
 module.exports = {
   findElement,
