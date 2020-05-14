@@ -376,9 +376,9 @@ function toNaryString(num, n) {
 }
 
 /**
- * Returns the commom directory path for specified array of full filenames.
+ * Returns the common directory path for specified array of full filenames.
  *
- * @param {array} pathes
+ * @param {array} paths
  * @return {string}
  *
  * @example:
@@ -387,8 +387,22 @@ function toNaryString(num, n) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/webalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(paths) {
+  const processedPaths = paths
+    .map((path) => path.split('/'));
+  const [firstPathInPaths] = processedPaths;
+
+  let result = '';
+
+  firstPathInPaths.forEach((dir, dirIdx) => {
+    const isCommon = processedPaths.every((path) => path[dirIdx] === dir);
+
+    if (isCommon) {
+      result += `${dir}/`;
+    }
+  });
+
+  return result;
 }
 
 
