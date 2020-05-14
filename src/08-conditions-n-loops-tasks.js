@@ -143,10 +143,14 @@ function isTriangle(a, b, c) {
  *   { top:20, left:20, width: 20, height: 20 }    =>  false
  *
  */
-function doRectanglesOverlap(/* rect1, rect2 */) {
-  throw new Error('Not implemented');
-}
+function doRectanglesOverlap(rect1, rect2) {
+  const isPointInsideRect = (x, y, {
+    top, left, height, width,
+  }) => y >= top && y <= top + height && x >= left && x <= left + width;
 
+  return isPointInsideRect(rect1.left, rect1.top, rect2)
+    || isPointInsideRect(rect2.left, rect2.top, rect1);
+}
 
 /**
  * Returns true, if point lies inside the circle, otherwise false.
