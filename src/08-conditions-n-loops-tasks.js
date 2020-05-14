@@ -445,8 +445,27 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  const [firstRow, secondRow, thirdRow] = position;
+  const firstHorizontal = [firstRow[0], secondRow[0], thirdRow[0]];
+  const secondHorizontal = [firstRow[1], secondRow[1], thirdRow[1]];
+  const thirdHorizontal = [firstRow[2], secondRow[2], thirdRow[2]];
+  const topLeftRightBottomDiagonal = [firstRow[0], secondRow[1], thirdRow[2]];
+  const bottomLeftRightTopDiagonal = [thirdRow[0], secondRow[1], firstRow[2]];
+  const rows = [
+    firstRow, secondRow, thirdRow,
+    firstHorizontal, secondHorizontal, thirdHorizontal,
+    topLeftRightBottomDiagonal, bottomLeftRightTopDiagonal,
+  ];
+  const hasRowSymbol = (row, symbol) => row.length === 3 && row.every((item) => item === symbol);
+  const CROSS = 'X';
+  const NOUGHT = '0';
+  const isX = rows.some((row) => hasRowSymbol(row, CROSS));
+  const isO = rows.some((row) => hasRowSymbol(row, NOUGHT));
+
+  if (isX) { return CROSS; }
+  if (isO) { return NOUGHT; }
+  return undefined;
 }
 
 
