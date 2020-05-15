@@ -118,63 +118,152 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
-  /* eslint-disable */
-  string: '',
+class CSSSelectorBuilder {
+  constructor() {
+    this.string = '';
+    this.existsElement = false;
+    this.existsId = false;
+    this.existsPseudoElement = false;
+    this.weight = null;
+  }
 
-  element(value) {
-    this.string += value;
+  checkIfDuplicate(selectorType) {
+    let isDuplicate;
+
+    switch (selectorType) {
+      case 'element':
+        isDuplicate = this.existsElement;
+        break;
+      case 'id':
+        isDuplicate = this.existsId;
+        break;
+      case 'pseudo-element':
+        isDuplicate = this.existsPseudoElement;
+        break;
+      default:
+        break;
+    }
+
+    if (isDuplicate) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+  }
+
+  checkSelectorWeight(weight) {
+    if (weight < this.weight) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    this.weight = weight;
+  }
+
+  setValue(value, selector) {
+    this.string += `${selector}${value}`;
+  }
+
+  element(value, selector = '') {
+    this.checkIfDuplicate('element');
+    this.checkSelectorWeight(1);
+
+    this.existsElement = true;
+    this.setValue(value, selector);
 
     return this;
-  },
+  }
 
-  id(value) {
-    this.string += `#${value}`;
+  id(value, selector = '#') {
+    this.checkIfDuplicate('id');
+    this.checkSelectorWeight(10);
 
-    return this;
-  },
-
-  class(value) {
-    this.string += `.${value}`;
+    this.existsId = true;
+    this.setValue(value, selector);
 
     return this;
-  },
+  }
 
-  attr(value) {
-    this.string += `[${value}]`;
+  class(value, selector = '.') {
+    this.checkSelectorWeight(100);
 
-    return this;
-  },
-
-  pseudoClass(value) {
-    this.string += `:${value}`;
+    this.setValue(value, selector);
 
     return this;
-  },
+  }
 
-  pseudoElement(value) {
-    this.string += `::${value}`;
+  attr(value, selector = '') {
+    this.checkSelectorWeight(1000);
+
+    this.setValue(`[${value}]`, selector);
 
     return this;
-  },
+  }
+
+  pseudoClass(value, selector = ':') {
+    this.checkSelectorWeight(10000);
+
+    this.setValue(value, selector);
+
+    return this;
+  }
+
+  pseudoElement(value, selector = '::') {
+    this.checkIfDuplicate('pseudo-element');
+    this.checkSelectorWeight(100000);
+
+    this.existsPseudoElement = true;
+    this.setValue(value, selector);
+
+    return this;
+  }
 
   combine(selector1, combinator, selector2) {
-    this.string += `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    this.setValue(`${selector1.stringify()} ${combinator} ${selector2.stringify()}`, '');
 
     return this;
-  },
+  }
 
   stringify() {
     const { string } = this;
 
     this.string = '';
+
     return string;
+  }
+}
+
+const cssSelectorBuilder = {
+  createObject() {
+    const newObject = new CSSSelectorBuilder();
+
+    return newObject;
+  },
+
+  element(value) {
+    return this.createObject().element(value);
+  },
+
+  id(value) {
+    return this.createObject().id(value);
+  },
+
+  class(value) {
+    return this.createObject().class(value);
+  },
+
+  attr(value) {
+    return this.createObject().attr(value);
+  },
+
+  pseudoClass(value) {
+    return this.createObject().pseudoClass(value);
+  },
+
+  pseudoElement(value) {
+    return this.createObject().pseudoElement(value);
+  },
+
+  combine(selector1, combinator, selector2) {
+    return this.createObject().combine(selector1, combinator, selector2);
   },
 };
-
-const builder = cssSelectorBuilder;
-
-console.log(builder.element('swag').stringify());
 
 module.exports = {
   Rectangle,
